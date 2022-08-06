@@ -1,0 +1,57 @@
+podTemplate(yaml: '''
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+  - name: agent
+    image: alpine/k8s:1.21.13
+    command:
+      - sleep
+    args:
+      - 9999999
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    command:
+      - sleep
+    args:
+      - 9999999
+    volumeMounts:
+      - name: kaniko-secret
+        mountPath: /kaniko/.docker
+  restartPolicy: Never
+  volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: dockercred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+''') {
+    node(POD_LABEL) {
+        stage('Checkout') {
+            git branch: 'main',
+            url: 'https://github.com/JuniYadi/docker-example.git'
+
+            stage('Build Docker Image') {
+                container('kaniko') {
+                    sh '''
+                    cd nodejs/express/
+                    /kaniko/executor --context `pwd` --destination juniyadi/docker-example:node-express
+                    '''
+                }
+            }
+
+            stage('Deploy to Kubernetes') {
+                container('agent') {
+                    withAWS(credentials: 'aws-pfnjyadi') {
+                        withKubeConfig([credentialsId: 'k8s-kube-config', namespace: 'apps']) {
+                            sh 'kubectl apply -f k8s.yaml'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
