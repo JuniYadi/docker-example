@@ -1,11 +1,12 @@
 const express = require('express');
 const app = express();
+const ip = require('ip');
 
 app.use(express.json());
 app.set('trust proxy');
 
 app.get('/', (req, res) => {
-    res.send({ header: req.headers, ip: req.ip, server: req.hostname });
+    res.send({ header: req.headers, ip: ip.address(), server: req.hostname });
 });
 
 app.get('/env', (req, res) => {
