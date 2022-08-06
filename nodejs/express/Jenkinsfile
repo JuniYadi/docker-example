@@ -49,10 +49,11 @@ spec:
           container('agent') {
             withAWS(credentials: 'aws-pfnjyadi') {
               withKubeConfig([credentialsId: 'k8s-kube-config', namespace: 'apps']) {
-                if (sh('kubectl get deployment node-express | grep "NotFound"')) {
-                  kubectl apply - f k8s.yml
-                } else {
-                  kubectl rollout restart -f k8s.yml
+                try {
+                  sh 'kubectl get deployment node-express | grep "NotFound"'
+                  sh 'kubectl apply -f k8s.yml'
+                } catch (e) {
+                  sh 'kubectl rollout restart -f k8s.yml'
                 }
               }
             }
