@@ -34,20 +34,23 @@ spec:
             git branch: 'main',
             url: 'https://github.com/JuniYadi/docker-example.git'
 
-            stage('Build Docker Image') {
-                container('kaniko') {
-                    sh '''
-                    cd nodejs/express/
-                    /kaniko/executor --context `pwd` --destination juniyadi/docker-example:node-express
-                    '''
-                }
-            }
+            dir('nodejs/express') {
+                sh 'pwd'
 
-            stage('Deploy to Kubernetes') {
-                container('agent') {
-                    withAWS(credentials: 'aws-pfnjyadi') {
-                        withKubeConfig([credentialsId: 'k8s-kube-config', namespace: 'apps']) {
-                            sh 'kubectl apply -f k8s.yaml'
+                stage('Build Docker Image') {
+                    container('kaniko') {
+                        sh '''
+                        /kaniko/executor --context `pwd` --destination juniyadi/docker-example:node-express
+                        '''
+                    }
+                }
+
+                stage('Deploy to Kubernetes') {
+                    container('agent') {
+                        withAWS(credentials: 'aws-pfnjyadi') {
+                            withKubeConfig([credentialsId: 'k8s-kube-config', namespace: 'apps']) {
+                                sh 'kubectl apply -f k8s.yml'
+                            }
                         }
                     }
                 }
