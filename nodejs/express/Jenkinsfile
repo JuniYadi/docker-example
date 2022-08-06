@@ -49,16 +49,16 @@ spec:
           container('agent') {
             withAWS(credentials: 'aws-pfnjyadi') {
               withKubeConfig([credentialsId: 'k8s-kube-config', namespace: 'apps']) {
-                if (sh("kubectl get deployment -n apps $POD_NAME").contains('NotFound')) {
-                  kubectl rollout restart -f k8s.yml
-                } else {
+                if (sh('kubectl get deployment node-express').contains('NotFound')) {
                   kubectl apply - f k8s.yml
+                } else {
+                  kubectl rollout restart -f k8s.yml
                 }
               }
             }
           }
         }
       }
+        }
     }
-  }
 }
