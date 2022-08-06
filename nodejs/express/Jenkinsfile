@@ -53,7 +53,7 @@ spec:
                   sh 'kubectl get deployment node-express | grep "NotFound"'
                   sh 'kubectl apply -f k8s/'
                 } catch (e) {
-                  sh 'kubectl rollout restart -f k8s/deployment.yaml'
+                  sh 'kubectl rollout restart -f k8s/deployment.yml'
                 }
               }
             }
