@@ -31,30 +31,34 @@ spec:
 ''') {
     node(POD_LABEL) {
         stage('Checkout') {
-            git branch: 'main',
+      git branch: 'main',
             url: 'https://github.com/JuniYadi/docker-example.git'
 
-            dir('nodejs/express') {
-                sh 'pwd'
+      dir('nodejs/express') {
+        sh 'pwd'
 
-                stage('Build Docker Image') {
-                    container('kaniko') {
-                        sh '''
-                        /kaniko/executor --context `pwd` --destination juniyadi/docker-example:node-express
-                        '''
-                    }
-                }
-
-                stage('Deploy to Kubernetes') {
-                    container('agent') {
-                        withAWS(credentials: 'aws-pfnjyadi') {
-                            withKubeConfig([credentialsId: 'k8s-kube-config', namespace: 'apps']) {
-                                sh 'kubectl apply -f k8s.yml'
-                            }
-                        }
-                    }
-                }
-            }
+        stage('Build Docker Image') {
+          container('kaniko') {
+            sh '''
+            /kaniko/executor --context `pwd` --destination juniyadi/docker-example:node-express
+            '''
+          }
         }
+
+        stage('Deploy to Kubernetes') {
+          container('agent') {
+            withAWS(credentials: 'aws-pfnjyadi') {
+              withKubeConfig([credentialsId: 'k8s-kube-config', namespace: 'apps']) {
+                if (kubectl get deployment | grep POD_NAME) {
+                  kubectl rollout restart -f k8s.yml
+                } else {
+                  kubectl apply - f k8s.yml
+                }
+              }
+            }
+          }
+        }
+      }
     }
+  }
 }
