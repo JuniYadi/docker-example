@@ -50,9 +50,13 @@ spec:
             withAWS(credentials: 'aws-pfnjyadi') {
               withKubeConfig([credentialsId: 'k8s-kube-config', namespace: 'apps']) {
                 try {
+                  echo 'check if deployment is exist'
+                  echo 'if not exist then create new one'
+
                   sh 'kubectl get deployment node-express | grep "NotFound"'
                   sh 'kubectl apply -f k8s/'
                 } catch (e) {
+                  echo 'deployment is exist, then rollout restart exiting deployment'
                   sh 'kubectl rollout restart -f k8s/deployment.yml'
                 }
               }
