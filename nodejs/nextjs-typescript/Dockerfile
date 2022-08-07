@@ -10,7 +10,7 @@ ENV NODE_ENV $NODE_ENV
 COPY package*.json .
 COPY . .
 
-RUN npm ci \
+RUN npm install \
     && npm run build \
     && npm clear-cache
 
