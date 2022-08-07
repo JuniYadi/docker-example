@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-nextjs-typescript
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: node-nextjs-typescript
+  template:
+    metadata:
+      labels:
+        app: node-nextjs-typescript
+    spec:
+      containers:
+        - name: node-nextjs-typescript
+          image: juniyadi/docker-example:node-nextjs-typescript
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
