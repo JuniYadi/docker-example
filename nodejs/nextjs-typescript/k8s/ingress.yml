@@ -4,11 +4,12 @@ metadata:
   name: node-nextjs-typescript-ingress
   annotations:
     kubernetes.io/ingress.class: 'nginx'
+    cert-manager.io/cluster-issuer: 'letsencrypt-dns-cf-prod'
 spec:
   tls:
     - hosts:
         - nextjs-typescript.k8s.juniyadi.id
-      secretName: wildcard-k8s-juniyadi-id-tls
+      secretName: letsencrypt-dns-cf-prod
   rules:
     - host: nextjs-typescript.k8s.juniyadi.id
       http:
