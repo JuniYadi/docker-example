@@ -8,12 +8,11 @@ WORKDIR /app
 RUN chown node:node /app
 
 COPY package*.json .
+COPY . .
 
 RUN npm ci --production \
     && npm run build \
     && npm clear-cache
-
-COPY . .
 
 USER node
 
